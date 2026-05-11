@@ -301,12 +301,13 @@
 
         .spell-feedback {
             margin-top: 20px;
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 800;
             height: 35px;
             display: flex;
             align-items: center;
             justify-content: center;
+            text-align: center;
         }
 
         .feedback-correct { color: var(--primary); animation: popIn 0.3s ease; }
@@ -535,16 +536,17 @@
             { en: "cybercrime", ru: "киберпреступность", img: "cybercrime.png", speech: "cyber crime" },
             { en: "a device", ru: "устройство", img: "device.png" },
             { en: "a network device", ru: "сетевое устройство", img: "network_device.png" },
-            { en: "hardware", ru: "аппаратное обеспечение", img: "hardware.png" },
-            { en: "software", ru: "программное обеспечение", img: "software.png" },
-            { en: "malware", ru: "вредоносное ПО", img: "malware.png" },
+            // Добавлено свойство rejected для неисчисляемых/множественных слов
+            { en: "hardware", ru: "аппаратное обеспечение", img: "hardware.png", rejected: ["a hardware"] },
+            { en: "software", ru: "программное обеспечение", img: "software.png", rejected: ["a software"] },
+            { en: "malware", ru: "вредоносное ПО", img: "malware.png", rejected: ["a malware"] },
             { en: "a virus", ru: "вирус", img: "virus.png" },
             { en: "a hacker", ru: "хакер", img: "hacker.png" }, 
-            { en: "artificial intelligence", ru: "искусственный интеллект", img: "ai.png" }, 
+            { en: "artificial intelligence", ru: "искусственный интеллект", img: "ai.png", rejected: ["an artificial intelligence", "a artificial intelligence"] }, 
             { en: "a link", ru: "ссылка", img: "link.png" }, 
-            { en: "data", ru: "данные", img: "data.png" }, 
-            { en: "personal data", ru: "персональные данные", img: "personal_data.png" }, 
-            { en: "payment data", ru: "платежные данные", img: "payment_data.png" }, 
+            { en: "data", ru: "данные", img: "data.png", rejected: ["a data"] }, 
+            { en: "personal data", ru: "персональные данные", img: "personal_data.png", rejected: ["a personal data"] }, 
+            { en: "payment data", ru: "платежные данные", img: "payment_data.png", rejected: ["a payment data"] }, 
             { en: "an access", ru: "доступ", img: "access.png" },
             { en: "an unauthorized access", ru: "несанкционированный доступ", img: "unauth.png" },
             { en: "to access", ru: "получать доступ", img: "to_access.png", speech: "to ak-SESS" }, 
@@ -771,6 +773,15 @@
                 }
             }
 
+            // --- НОВОЕ: Проверка на недопустимые варианты (например, "a data") ---
+            if (isCorrect && currentWordObj.rejected) {
+                const rejectedList = currentWordObj.rejected.map(w => w.toLowerCase());
+                if (rejectedList.includes(inputVal)) {
+                    isCorrect = false;
+                }
+            }
+            // ---------------------------------------------------------------------
+
             if (isCorrect) {
                 feedback.innerText = '✅ Верно!';
                 feedback.className = 'spell-feedback feedback-correct';
@@ -781,12 +792,18 @@
                     if(currentSpellIndex < words.length - 1) nextSpellCard();
                 }, 1500);
             } else {
-                feedback.innerText = '❌ Ошибка, попробуйте еще раз';
+                // Кастомное сообщение об ошибке для "a data"
+                if (inputVal === "a data" && currentWordObj.en === "data") {
+                    feedback.innerText = '❌ Ошибка: Data — множественное число (ед. ч. — a datum)';
+                } else {
+                    feedback.innerText = '❌ Ошибка, попробуйте еще раз';
+                }
+                
                 feedback.className = 'spell-feedback feedback-wrong';
                 setTimeout(() => {
                     feedback.innerText = '';
                     feedback.className = 'spell-feedback';
-                }, 2000);
+                }, 2500); // Увеличил таймаут, чтобы ученик успел прочитать длинное сообщение
             }
         }
 

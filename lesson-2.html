@@ -3,160 +3,519 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cybersecurity Lesson: Crimes & Methods</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Cybersecurity: Crimes & Methods</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body {
-            background-color: #0f172a;
-            color: #e2e8f0;
+        /* =========================================
+           COMPACT FLUID VARIABLES (CLAMP)
+           ========================================= */
+        :root {
+            /* Colors */
+            --bg-dark: #0f172a;
+            --bg-gradient: radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 100%);
+            --panel-bg: rgba(30, 41, 59, 0.85);
+            --panel-border: #334155;
+            
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            
+            --accent-blue: #38bdf8;
+            --accent-blue-hover: #0284c7;
+            --accent-green: #34d399;
+            --accent-green-hover: #059669;
+            --accent-red: #f87171;
+            --accent-purple: #818cf8;
+            --accent-purple-hover: #4f46e5;
+
+            /* Compact Typography */
+            --fs-h1: clamp(1.25rem, 3vw + 0.5rem, 2rem);
+            --fs-h2: clamp(1.1rem, 2vw + 0.5rem, 1.35rem);
+            --fs-term-en: clamp(1.25rem, 3vw + 0.5rem, 1.75rem);
+            --fs-term-def: clamp(0.9rem, 1.5vw + 0.5rem, 1.1rem);
+            --fs-term-ru: clamp(1.1rem, 2vw + 0.5rem, 1.35rem);
+            --fs-quiz-q: clamp(0.95rem, 2vw + 0.5rem, 1.15rem);
+            --fs-btn: clamp(0.85rem, 1vw + 0.5rem, 0.95rem);
+            --fs-small: clamp(0.75rem, 1vw + 0.25rem, 0.85rem);
+
+            /* Compact Spacing */
+            --space-xs: clamp(0.25rem, 0.5vw, 0.5rem);
+            --space-sm: clamp(0.5rem, 1vw, 0.75rem);
+            --space-md: clamp(0.75rem, 1.5vw, 1.25rem);
+            --space-lg: clamp(1rem, 2vw, 1.5rem);
+            --space-xl: clamp(1.5rem, 3vw, 2rem);
+
+            /* Layout */
+            --container-width: clamp(300px, 90vw, 900px);
+            --border-radius: clamp(8px, 1vw, 12px);
+        }
+
+        /* =========================================
+           GLOBAL STYLES
+           ========================================= */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-image: radial-gradient(circle at 50% 0%, #1e293b 0%, #0f172a 100%);
+        }
+
+        body {
+            background: var(--bg-gradient);
+            background-color: var(--bg-dark);
+            color: var(--text-main);
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: var(--space-lg) var(--space-sm);
+            line-height: 1.4;
         }
-        .glass-panel {
-            background: rgba(30, 41, 59, 0.85);
-            backdrop-filter: blur(12px);
-            border: 1px solid #334155;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-        .reveal-anim {
-            animation: fadeInDown 0.4s ease-out forwards;
-        }
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .option-btn {
+
+        button {
+            cursor: pointer;
+            border: none;
+            outline: none;
+            font-family: inherit;
             transition: all 0.2s ease;
         }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* =========================================
+           COMPONENTS
+           ========================================= */
+        header {
+            text-align: center;
+            margin-bottom: var(--space-lg);
+            width: 100%;
+        }
+
+        h1 {
+            font-size: var(--fs-h1);
+            color: var(--accent-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--space-xs);
+            text-shadow: 0 2px 10px rgba(56, 189, 248, 0.3);
+        }
+
+        .subtitle {
+            font-size: var(--fs-btn);
+            color: var(--text-muted);
+        }
+
+        .glass-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--panel-border);
+            border-radius: var(--border-radius);
+            padding: var(--space-lg);
+            width: var(--container-width);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* Menu Buttons */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+            gap: var(--space-md);
+            margin-top: var(--space-md);
+        }
+
+        .menu-btn {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--panel-border);
+            border-radius: var(--border-radius);
+            padding: var(--space-md);
+            color: var(--text-main);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .menu-btn i {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+        }
+
+        .menu-btn h3 {
+            font-size: var(--fs-h2);
+        }
+
+        .menu-btn p {
+            font-size: var(--fs-small);
+            color: var(--text-muted);
+        }
+
+        .menu-btn.term-btn:hover {
+            border-color: var(--accent-blue);
+            background: rgba(56, 189, 248, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(56, 189, 248, 0.15);
+        }
+        .menu-btn.term-btn i { color: var(--accent-blue); }
+
+        .menu-btn.quiz-btn:hover {
+            border-color: var(--accent-green);
+            background: rgba(52, 211, 153, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(52, 211, 153, 0.15);
+        }
+        .menu-btn.quiz-btn i { color: var(--accent-green); }
+
+        /* Top Bar (Progress & Home) */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--panel-border);
+            padding-bottom: var(--space-sm);
+            margin-bottom: var(--space-md);
+        }
+
+        .top-bar h2 {
+            font-size: var(--fs-h2);
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .progress-badge {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--panel-border);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: var(--fs-small);
+            color: var(--text-muted);
+        }
+
+        .home-link {
+            color: var(--text-muted);
+            text-decoration: underline;
+            font-size: var(--fs-small);
+            background: none;
+            padding: 0;
+        }
+        .home-link:hover { color: var(--text-main); }
+
+        /* Terminology Module */
+        .term-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            min-height: 25vh;
+            justify-content: center;
+        }
+
+        .term-en {
+            font-size: var(--fs-term-en);
+            color: var(--accent-blue);
+            font-weight: 800;
+            margin-bottom: var(--space-sm);
+        }
+
+        .term-def {
+            font-size: var(--fs-term-def);
+            color: var(--text-muted);
+            max-width: 95%;
+            margin-bottom: var(--space-lg);
+        }
+
+        .reveal-btn {
+            background: var(--accent-purple);
+            color: white;
+            font-size: var(--fs-btn);
+            font-weight: bold;
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 10px rgba(129, 140, 248, 0.3);
+        }
+        .reveal-btn:hover {
+            background: var(--accent-purple-hover);
+            transform: scale(1.02);
+        }
+
+        .translation-box {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--accent-green);
+            border-radius: var(--border-radius);
+            padding: var(--space-sm) var(--space-md);
+            width: 100%;
+            margin-top: var(--space-md);
+            animation: slideDown 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .translation-label {
+            font-size: var(--fs-small);
+            color: var(--accent-green);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .term-ru {
+            font-size: var(--fs-term-ru);
+            font-weight: bold;
+            color: var(--text-main);
+        }
+
+        .nav-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: var(--space-md);
+            padding-top: var(--space-sm);
+            border-top: 1px solid var(--panel-border);
+        }
+
+        .nav-btn {
+            background: rgba(51, 65, 85, 0.5);
+            color: var(--text-main);
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: 6px;
+            font-size: var(--fs-btn);
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+        .nav-btn:hover:not(:disabled) { background: rgba(51, 65, 85, 1); }
+        .nav-btn.primary { background: var(--accent-blue); color: #000; font-weight: bold; }
+        .nav-btn.primary:hover:not(:disabled) { background: var(--accent-blue-hover); color: #fff;}
+
+        /* Quiz Module */
+        .quiz-question-box {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--panel-border);
+            border-radius: var(--border-radius);
+            padding: var(--space-sm) var(--space-md);
+            margin-bottom: var(--space-md);
+        }
+
+        .quiz-label {
+            font-size: var(--fs-small);
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .quiz-question {
+            font-size: var(--fs-quiz-q);
+            color: var(--text-main);
+        }
+
+        .quiz-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+            gap: var(--space-sm);
+        }
+
+        .option-btn {
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid var(--panel-border);
+            color: var(--text-main);
+            padding: var(--space-sm) var(--space-md);
+            border-radius: 8px;
+            font-size: var(--fs-btn);
+            text-align: left;
+            font-weight: 500;
+        }
+
         .option-btn:hover:not(:disabled) {
-            transform: translateX(5px);
-            border-color: #38bdf8;
-            box-shadow: -4px 0 0 #38bdf8;
+            border-color: var(--accent-blue);
+            transform: translateX(3px);
+            box-shadow: -3px 0 0 var(--accent-blue);
+        }
+
+        .option-btn.correct {
+            background: var(--accent-green-hover);
+            border-color: var(--accent-green);
+            color: white;
+        }
+
+        .option-btn.wrong {
+            background: var(--accent-red);
+            border-color: #dc2626;
+            color: white;
+        }
+
+        /* Results Screen */
+        .results-content {
+            text-align: center;
+            padding: var(--space-md) 0;
+        }
+
+        .results-icon {
+            font-size: clamp(3rem, 6vw, 4rem);
+            color: #facc15;
+            margin-bottom: var(--space-sm);
+            filter: drop-shadow(0 0 15px rgba(250, 204, 21, 0.3));
+        }
+
+        .score-box {
+            display: inline-block;
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--panel-border);
+            border-radius: var(--border-radius);
+            padding: var(--space-sm) var(--space-lg);
+            margin: var(--space-sm) 0;
+        }
+
+        .score-number {
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            font-weight: 900;
+            color: var(--accent-blue);
+            line-height: 1;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
     </style>
 </head>
-<body class="flex flex-col items-center py-10 px-4">
+<body>
 
-    <!-- Header -->
-    <header class="text-center mb-10">
-        <h1 class="text-4xl font-extrabold text-sky-400 mb-2 tracking-wider uppercase drop-shadow-lg">
-            <i class="fa-solid fa-shield-halved mr-2"></i> Cybersecurity Essentials
-        </h1>
-        <p class="text-slate-400 text-lg">Cybercrimes and Cyber Methods</p>
+    <header>
+        <h1><i class="fa-solid fa-shield-halved"></i> Cybersecurity Essentials</h1>
+        <p class="subtitle">Cybercrimes and Cyber Methods</p>
     </header>
 
     <!-- MAIN MENU -->
-    <div id="main-menu" class="glass-panel rounded-2xl p-10 w-full max-w-3xl text-center">
-        <h2 class="text-2xl font-semibold mb-8 text-white">Select Lesson Module:</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <button onclick="startTerminology()" class="group relative bg-slate-800 hover:bg-sky-900 text-white p-8 rounded-xl transition-all border border-slate-600 hover:border-sky-400 overflow-hidden">
-                <div class="absolute inset-0 bg-sky-500 opacity-0 group-hover:opacity-10 transition-opacity"></div>
-                <i class="fa-solid fa-book-open text-4xl text-sky-400 mb-4 block"></i>
-                <h3 class="text-xl font-bold mb-2">1. Terminology</h3>
-                <p class="text-sm text-slate-400">Read definitions, guess the translation, and reveal the answer.</p>
+    <main id="main-menu" class="glass-panel">
+        <h2 style="font-size: var(--fs-h2); text-align: center; margin-bottom: var(--space-xs);">Select Lesson Module:</h2>
+        <div class="menu-grid">
+            <button onclick="startTerminology()" class="menu-btn term-btn">
+                <i class="fa-solid fa-book-open"></i>
+                <h3>1. Terminology</h3>
+                <p>Read definitions, guess the translation, and reveal the answer.</p>
             </button>
             
-            <button onclick="startQuiz()" class="group relative bg-slate-800 hover:bg-emerald-900 text-white p-8 rounded-xl transition-all border border-slate-600 hover:border-emerald-400 overflow-hidden">
-                <div class="absolute inset-0 bg-emerald-500 opacity-0 group-hover:opacity-10 transition-opacity"></div>
-                <i class="fa-solid fa-gamepad text-4xl text-emerald-400 mb-4 block"></i>
-                <h3 class="text-xl font-bold mb-2">2. Cyber Cases Quiz</h3>
-                <p class="text-sm text-slate-400">Match 20 short case descriptions with the correct cybercrime.</p>
+            <button onclick="startQuiz()" class="menu-btn quiz-btn">
+                <i class="fa-solid fa-gamepad"></i>
+                <h3>2. Cyber Cases Quiz</h3>
+                <p>Match 20 short case descriptions with the correct cybercrime.</p>
             </button>
         </div>
-    </div>
+    </main>
 
     <!-- MODULE 1: TERMINOLOGY REVEAL -->
-    <div id="term-container" class="glass-panel rounded-2xl p-8 w-full max-w-4xl hidden">
-        <div class="flex justify-between items-center mb-6 border-b border-slate-600 pb-4">
-            <h2 class="text-xl font-bold text-sky-400">
-                <i class="fa-solid fa-graduation-cap mr-2"></i> Terminology Study
-            </h2>
-            <div class="flex items-center gap-4">
-                <span id="term-progress" class="text-slate-300 font-mono bg-slate-800 px-3 py-1 rounded-lg border border-slate-600">1/16</span>
-                <button onclick="showMenu()" class="text-slate-400 hover:text-white text-sm underline"><i class="fa-solid fa-house"></i> Menu</button>
+    <main id="term-container" class="glass-panel hidden">
+        <div class="top-bar">
+            <h2 style="color: var(--accent-blue);"><i class="fa-solid fa-graduation-cap"></i> Terminology Study</h2>
+            <div class="top-bar-right">
+                <span id="term-progress" class="progress-badge">1/16</span>
+                <button onclick="showMenu()" class="home-link"><i class="fa-solid fa-house"></i> Menu</button>
             </div>
         </div>
 
-        <div class="min-h-[250px] flex flex-col justify-center items-center text-center mb-8">
-            <h3 id="term-en" class="text-4xl font-extrabold text-white mb-6 text-sky-300"></h3>
-            <p id="term-def" class="text-xl text-slate-300 leading-relaxed max-w-2xl"></p>
+        <div class="term-content">
+            <div id="term-en" class="term-en"></div>
+            <div id="term-def" class="term-def"></div>
             
-            <div class="mt-8 w-full">
-                <button id="btn-reveal" onclick="revealTranslation()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-8 rounded-xl transition-colors shadow-[0_0_15px_rgba(79,70,229,0.4)]">
-                    <i class="fa-solid fa-eye mr-2"></i> Show Correct Translation
-                </button>
-                
-                <div id="term-ru-container" class="hidden mt-6 p-6 bg-slate-800/80 border-2 border-emerald-500/50 rounded-xl">
-                    <p class="text-sm text-emerald-400 uppercase tracking-widest mb-1 font-bold">Russian Translation:</p>
-                    <p id="term-ru" class="text-3xl font-bold text-white"></p>
-                </div>
+            <button id="btn-reveal" onclick="revealTranslation()" class="reveal-btn">
+                <i class="fa-solid fa-eye"></i> Show Correct Translation
+            </button>
+            
+            <div id="term-ru-container" class="translation-box hidden">
+                <div class="translation-label">Russian Translation:</div>
+                <div id="term-ru" class="term-ru"></div>
             </div>
         </div>
 
-        <div class="flex justify-between mt-8 pt-6 border-t border-slate-700">
-            <button id="btn-prev-term" onclick="prevTerm()" class="bg-slate-700 hover:bg-slate-600 text-white py-2 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                <i class="fa-solid fa-arrow-left mr-2"></i> Previous
+        <div class="nav-controls">
+            <button id="btn-prev-term" onclick="prevTerm()" class="nav-btn">
+                <i class="fa-solid fa-arrow-left"></i> Previous
             </button>
-            <button id="btn-next-term" onclick="nextTerm()" class="bg-sky-600 hover:bg-sky-500 text-white py-2 px-6 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                Next <i class="fa-solid fa-arrow-right ml-2"></i>
+            <button id="btn-next-term" onclick="nextTerm()" class="nav-btn primary">
+                Next <i class="fa-solid fa-arrow-right"></i>
             </button>
         </div>
-    </div>
+    </main>
 
     <!-- MODULE 2: QUIZ -->
-    <div id="quiz-container" class="glass-panel rounded-2xl p-8 w-full max-w-4xl hidden">
-        <div class="flex justify-between items-center mb-6 border-b border-slate-600 pb-4">
-            <h2 class="text-xl font-bold text-emerald-400">
-                <i class="fa-solid fa-user-secret mr-2"></i> Case Analysis
-            </h2>
-            <div class="flex items-center gap-4">
-                <span id="quiz-score" class="text-emerald-400 font-bold bg-emerald-900/30 px-3 py-1 rounded-lg border border-emerald-500/30">Score: 0</span>
-                <span id="quiz-progress" class="text-slate-300 font-mono bg-slate-800 px-3 py-1 rounded-lg border border-slate-600">1/20</span>
-                <button onclick="showMenu()" class="text-slate-400 hover:text-white text-sm underline"><i class="fa-solid fa-house"></i> Menu</button>
+    <main id="quiz-container" class="glass-panel hidden">
+        <div class="top-bar">
+            <h2 style="color: var(--accent-green);"><i class="fa-solid fa-user-secret"></i> Case Analysis</h2>
+            <div class="top-bar-right">
+                <span id="quiz-score" class="progress-badge" style="color: var(--accent-green); border-color: var(--accent-green);">Score: 0</span>
+                <span id="quiz-progress" class="progress-badge">1/20</span>
+                <button onclick="showMenu()" class="home-link"><i class="fa-solid fa-house"></i> Menu</button>
             </div>
         </div>
 
-        <div class="bg-slate-800/50 p-6 rounded-xl border border-slate-600 mb-8">
-            <p class="text-slate-400 text-sm uppercase tracking-widest mb-2"><i class="fa-solid fa-file-lines mr-1"></i> Incident Report:</p>
-            <p id="quiz-question" class="text-2xl text-white leading-relaxed"></p>
+        <div class="quiz-question-box">
+            <div class="quiz-label"><i class="fa-solid fa-file-lines"></i> Incident Report:</div>
+            <div id="quiz-question" class="quiz-question"></div>
         </div>
 
-        <div id="quiz-options" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div id="quiz-options" class="quiz-options">
             <!-- Options generated by JS -->
         </div>
-    </div>
+    </main>
 
     <!-- RESULTS SCREEN -->
-    <div id="results-container" class="glass-panel rounded-2xl p-10 w-full max-w-2xl hidden text-center">
-        <i class="fa-solid fa-trophy text-6xl text-yellow-400 mb-6 drop-shadow-[0_0_15px_rgba(250,204,21,0.5)]"></i>
-        <h2 class="text-4xl font-bold text-white mb-2">Quiz Completed!</h2>
-        <p class="text-slate-400 mb-8 text-lg">Here is your performance report.</p>
-        
-        <div class="bg-slate-800 p-8 rounded-2xl border border-slate-600 mb-8 inline-block min-w-[250px]">
-            <p class="text-slate-400 uppercase tracking-widest mb-2">Final Score</p>
-            <p id="res-score" class="text-6xl font-black text-sky-400"></p>
-        </div>
+    <main id="results-container" class="glass-panel hidden">
+        <div class="results-content">
+            <i class="fa-solid fa-trophy results-icon"></i>
+            <h2 style="font-size: var(--fs-h1); margin-bottom: var(--space-xs);">Quiz Completed!</h2>
+            <p style="font-size: var(--fs-btn); color: var(--text-muted);">Here is your performance report.</p>
+            
+            <div class="score-box">
+                <div style="font-size: var(--fs-small); color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Final Score</div>
+                <div id="res-score" class="score-number">0/20</div>
+            </div>
 
-        <div class="w-full bg-slate-700 rounded-full h-4 mb-2">
-            <div id="res-bar" class="bg-emerald-500 h-4 rounded-full transition-all duration-1000" style="width: 0%"></div>
-        </div>
-        <p id="res-percent" class="text-right text-sm text-slate-400 font-bold mb-8">0% Accuracy</p>
+            <div style="width: 100%; background: rgba(15,23,42,0.8); border-radius: 6px; height: 8px; margin-bottom: 4px; overflow: hidden;">
+                <div id="res-bar" style="height: 100%; width: 0%; background: var(--accent-green); transition: width 1s ease;"></div>
+            </div>
+            <div id="res-percent" style="text-align: right; font-size: var(--fs-small); color: var(--text-muted); font-weight: bold; margin-bottom: var(--space-md);">0% Accuracy</div>
 
-        <button onclick="showMenu()" class="bg-sky-600 hover:bg-sky-500 text-white font-bold py-4 px-10 rounded-xl transition-colors shadow-lg">
-            <i class="fa-solid fa-rotate-left mr-2"></i> Return to Menu
-        </button>
-    </div>
+            <button onclick="showMenu()" class="reveal-btn" style="background: var(--accent-blue); box-shadow: 0 4px 10px rgba(56, 189, 248, 0.3);">
+                <i class="fa-solid fa-rotate-left"></i> Return to Menu
+            </button>
+        </div>
+    </main>
 
     <script>
-        // --- DATA FROM TEACHER'S FILES ---
+        /* =========================================
+           DATA FROM TEACHER'S FILES (EXACT MATCH)
+           ========================================= */
 
         // File 1: Terminology
         const termsData = [
-            { en: "a DoS attack", ru: "DoS-атака (сетевая атака)", def: "is a cyber attack carried out with one Internet-connected device and aimed to disrupt legitimate users’ access to a target network or web resource." },
-            { en: "a DDoS attack", ru: "DDoS-атака (распределенная сетевая атака)", def: "is a cyber attack carried out with networks of Internet-connected machines and aimed to disrupt legitimate users’ access to a target network or web resource." },
+            { en: "a denial-of-service attack (a DoS attack)", ru: "DoS-атака (сетевая атака)", def: "is a cyber attack carried out with one Internet-connected device and aimed to disrupt legitimate users’ access to a target network or web resource." },
+            { en: "a distributed denial-of-service attack (a DDoS attack)", ru: "DDoS-атака (распределенная сетевая атака)", def: "is a cyber attack carried out with networks of Internet-connected machines and aimed to disrupt legitimate users’ access to a target network or web resource." },
             { en: "a malware attack", ru: "хакерская атака", def: "is a cyber-attack where malicious software, commonly known as malware, is used to gain unauthorized access to a computer system or network." },
             { en: "a social engineering attack", ru: "атака с помощью социальной инженерии", def: "is a type of cyber attack that uses psychological manipulation and lies to trick people into giving up sensitive information or doing things that could compromise security." },
             { en: "spoofing", ru: "спуфинг (от англ. spoof – подменять, имитировать)", def: "is the creation and use of fake messages, emails, sites, etc." },
@@ -175,37 +534,39 @@
 
         // File 2: Cases
         const casesData = [
-            { case: "A user receives an email with a link asking to enter a bank password.", answer: "Phishing" },
-            { case: "A computer stops working after downloading a file from an unknown website.", answer: "A malware attack" },
-            { case: "A hoax phone call asks a user to give bank account details.", answer: "Vishing" },
-            { case: "A hacker demands money to unlock important files.", answer: "Cyber extortion" },
-            { case: "A website does not work because of many fake requests.", answer: "A DDoS attack" },
-            { case: "A user receives a fake message from a bank asking to confirm details.", answer: "Phishing" },
-            { case: "A user clicks a link and is sent to a fake website.", answer: "Phishing" },
-            { case: "An employee opens an infected email, and the company network is damaged.", answer: "A malware attack" },
-            { case: "A user receives threatening messages online from an unknown person.", answer: "Cyber stalking" },
-            { case: "A fake emergency call leads police to send a SWAT team.", answer: "Swatting" },
-            { case: "A hacker enters a company system without permission and steals the important information.", answer: "Cyber espionage" },
-            { case: "A user’s computer is used to mine cryptocurrency without permission.", answer: "Cryptojacking" },
-            { case: "A user receives a fake link in social media messages.", answer: "Phishing" },
-            { case: "A criminal uses stolen data to buy things online.", answer: "Identity fraud" },
-            { case: "A hacker blocks access to a company system and demands money.", answer: "Cyber extortion" },
-            { case: "An unknown person gains an unauthorized access to a girl’s smart home devices to spy on her.", answer: "Cyber stalking" },
-            { case: "Hackers use DDoS attacks against computer systems and networks of the state bodies to pressure the government and cause some ideological, political, or social changes.", answer: "Cyber terrorism" },
-            { case: "An unauthorized person gains access to another person’s financial information.", answer: "Identity theft" },
-            { case: "An unknown person reports a fake bomb threat at the university.", answer: "Swatting" },
-            { case: "Scammers use AI to clone the voice of a relative in distress to urgently request money.", answer: "Vishing" }
+            { case: "1. A user receives an email with a link asking to enter a bank password.", answer: "phishing" },
+            { case: "2. A computer stops working after downloading a file from an unknown website.", answer: "a malware attack" },
+            { case: "3. A hoax phone call asks a user to give bank account details.", answer: "vishing" },
+            { case: "4. A hacker demands money to unlock important files.", answer: "cyber extortion" },
+            { case: "5. A website does not work because of many fake requests.", answer: "a DDoS attack" },
+            { case: "6. A user receives a fake message from a bank asking to confirm details.", answer: "phishing" },
+            { case: "7. A user clicks a link and is sent to a fake website.", answer: "phishing" },
+            { case: "8. An employee opens an infected email, and the company network is damaged.", answer: "a malware attack" },
+            { case: "9. A user receives threatening messages online from an unknown person.", answer: "cyber stalking" },
+            { case: "10. A fake emergency call leads police to send a SWAT team.", answer: "swatting" },
+            { case: "11. A hacker enters a company system without permission and steals the important information.", answer: "cyber espionage" },
+            { case: "12. A user’s computer is used to mine cryptocurrency without permission.", answer: "cryptojacking" },
+            { case: "13. A user receives a fake link in social media messages.", answer: "phishing" },
+            { case: "14. A criminal uses stolen data to buy things online.", answer: "identity fraud" },
+            { case: "15. A hacker blocks access to a company system and demands money.", answer: "cyber extortion" },
+            { case: "16. An unknown person gains an unauthorized access to a girl’s smart home devices to spy on her.", answer: "cyber stalking" },
+            { case: "17. Hackers use DDoS attacks against computer systems and networks of the state bodies to pressure the government and cause some ideological, political, or social changes.", answer: "cyber terrorism" },
+            { case: "18. An unauthorized person gains access to another person’s financial information.", answer: "identity theft" },
+            { case: "19. An unknown person reports a fake bomb threat at the university.", answer: "swatting" },
+            { case: "20. Scammers use AI to clone the voice of a relative in distress to urgently request money.", answer: "vishing" }
         ];
 
-        // Helper: Extract just the English terms for quiz options
-        const allTermsList = termsData.map(t => {
-            // Clean up terms for buttons (remove "a ", "an ", "(=...)")
-            let clean = t.en.replace(/ \(=.*?\)/, '');
-            // Capitalize first letter
-            return clean.charAt(0).toUpperCase() + clean.slice(1);
-        });
+        // Clean list of terms for quiz buttons
+        const cleanTermsList = [
+            "a DoS attack", "a DDoS attack", "a malware attack", "a social engineering attack", 
+            "spoofing", "phishing", "vishing", "identity theft", "identity fraud", 
+            "cyber extortion", "copyright infringement", "cryptojacking", "cyber stalking", 
+            "swatting", "cyber espionage", "cyber terrorism"
+        ];
 
-        // --- UI NAVIGATION ---
+        /* =========================================
+           UI NAVIGATION LOGIC
+           ========================================= */
         const elMenu = document.getElementById('main-menu');
         const elTerm = document.getElementById('term-container');
         const elQuiz = document.getElementById('quiz-container');
@@ -218,7 +579,9 @@
             elResults.classList.add('hidden');
         }
 
-        // --- MODULE 1: TERMINOLOGY LOGIC ---
+        /* =========================================
+           MODULE 1: TERMINOLOGY LOGIC
+           ========================================= */
         let currentTermIndex = 0;
 
         function startTerminology() {
@@ -231,33 +594,41 @@
         function loadTerm() {
             const data = termsData[currentTermIndex];
             
-            // Update text
             document.getElementById('term-en').innerText = data.en;
             document.getElementById('term-def').innerText = data.def;
             document.getElementById('term-ru').innerText = data.ru;
             
-            // Reset UI state
-            document.getElementById('term-ru-container').classList.add('hidden');
-            document.getElementById('term-ru-container').classList.remove('reveal-anim');
+            // Reset UI state for new term
+            const ruContainer = document.getElementById('term-ru-container');
+            ruContainer.classList.add('hidden');
+            ruContainer.style.animation = 'none'; 
+            ruContainer.offsetHeight; 
+            ruContainer.style.animation = null; 
+            
             document.getElementById('btn-reveal').classList.remove('hidden');
             
-            // Update progress & buttons
             document.getElementById('term-progress').innerText = `${currentTermIndex + 1}/${termsData.length}`;
             document.getElementById('btn-prev-term').disabled = currentTermIndex === 0;
-            document.getElementById('btn-next-term').disabled = currentTermIndex === termsData.length - 1;
+            
+            const nextBtn = document.getElementById('btn-next-term');
+            if (currentTermIndex === termsData.length - 1) {
+                nextBtn.innerHTML = '<i class="fa-solid fa-check"></i> Finish';
+            } else {
+                nextBtn.innerHTML = 'Next <i class="fa-solid fa-arrow-right"></i>';
+            }
         }
 
         function revealTranslation() {
             document.getElementById('btn-reveal').classList.add('hidden');
-            const ruContainer = document.getElementById('term-ru-container');
-            ruContainer.classList.remove('hidden');
-            ruContainer.classList.add('reveal-anim');
+            document.getElementById('term-ru-container').classList.remove('hidden');
         }
 
         function nextTerm() {
             if (currentTermIndex < termsData.length - 1) {
                 currentTermIndex++;
                 loadTerm();
+            } else {
+                showMenu();
             }
         }
 
@@ -268,30 +639,29 @@
             }
         }
 
-        // --- MODULE 2: QUIZ LOGIC ---
+        /* =========================================
+           MODULE 2: QUIZ LOGIC
+           ========================================= */
         let currentQuizIndex = 0;
         let score = 0;
         let quizQuestions = [];
 
         function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
+            let arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
+                [arr[i], arr[j]] = [arr[j], arr[i]];
             }
-            return array;
+            return arr;
         }
 
         function generateQuizData() {
-            // Create a copy of cases and shuffle them
-            quizQuestions = shuffleArray([...casesData]).map(q => {
-                // Format correct answer to match the list
-                let correctAns = q.answer.charAt(0).toUpperCase() + q.answer.slice(1);
+            quizQuestions = shuffleArray(casesData).map(q => {
+                let correctAns = q.answer;
                 
-                // Get 3 random wrong answers
-                let wrongAnswers = allTermsList.filter(t => t.toLowerCase() !== correctAns.toLowerCase());
+                let wrongAnswers = cleanTermsList.filter(t => t.toLowerCase() !== correctAns.toLowerCase());
                 wrongAnswers = shuffleArray(wrongAnswers).slice(0, 3);
                 
-                // Combine and shuffle options
                 let options = shuffleArray([correctAns, ...wrongAnswers]);
                 
                 return {
@@ -315,15 +685,17 @@
         function loadQuizQuestion() {
             const q = quizQuestions[currentQuizIndex];
             document.getElementById('quiz-progress').innerText = `${currentQuizIndex + 1}/${quizQuestions.length}`;
-            document.getElementById('quiz-question').innerText = q.question;
+            
+            const cleanQuestion = q.question.replace(/^\d+\.\s*/, '');
+            document.getElementById('quiz-question').innerText = cleanQuestion;
             
             const optionsContainer = document.getElementById('quiz-options');
             optionsContainer.innerHTML = '';
             
             q.options.forEach((opt) => {
                 const btn = document.createElement('button');
-                btn.className = "option-btn bg-slate-800 text-white text-left py-4 px-6 rounded-xl border-2 border-slate-600 text-lg font-medium";
-                btn.innerText = opt;
+                btn.className = "option-btn";
+                btn.innerText = opt.charAt(0).toUpperCase() + opt.slice(1);
                 btn.onclick = () => checkAnswer(opt, q.correct, btn);
                 optionsContainer.appendChild(btn);
             });
@@ -332,18 +704,14 @@
         function checkAnswer(selected, correct, btnElement) {
             const allButtons = document.getElementById('quiz-options').children;
             
-            // Disable all buttons
             for(let btn of allButtons) { 
                 btn.disabled = true; 
-                btn.classList.remove('hover:border-sky-400');
             }
 
             if (selected.toLowerCase() === correct.toLowerCase()) {
-                // Correct
                 score++;
                 document.getElementById('quiz-score').innerText = `Score: ${score}`;
-                btnElement.classList.replace('bg-slate-800', 'bg-emerald-600');
-                btnElement.classList.replace('border-slate-600', 'border-emerald-400');
+                btnElement.classList.add('correct');
                 
                 Swal.fire({
                     title: 'Correct!',
@@ -354,21 +722,17 @@
                     showConfirmButton: false
                 }).then(() => nextQuizQuestion());
             } else {
-                // Wrong
-                btnElement.classList.replace('bg-slate-800', 'bg-red-600');
-                btnElement.classList.replace('border-slate-600', 'border-red-400');
+                btnElement.classList.add('wrong');
                 
-                // Highlight correct answer
                 for(let btn of allButtons) {
                     if (btn.innerText.toLowerCase() === correct.toLowerCase()) {
-                        btn.classList.replace('bg-slate-800', 'bg-emerald-600');
-                        btn.classList.replace('border-slate-600', 'border-emerald-400');
+                        btn.classList.add('correct');
                     }
                 }
 
                 Swal.fire({
                     title: 'Incorrect',
-                    text: `The correct answer is: ${correct}`,
+                    text: `The correct answer is: ${correct.charAt(0).toUpperCase() + correct.slice(1)}`,
                     icon: 'error',
                     background: '#1e293b',
                     color: '#fff',
@@ -398,9 +762,9 @@
             setTimeout(() => {
                 const bar = document.getElementById('res-bar');
                 bar.style.width = `${percentage}%`;
-                if(percentage >= 80) bar.className = "bg-emerald-500 h-4 rounded-full transition-all duration-1000";
-                else if(percentage >= 50) bar.className = "bg-yellow-500 h-4 rounded-full transition-all duration-1000";
-                else bar.className = "bg-red-500 h-4 rounded-full transition-all duration-1000";
+                if(percentage >= 80) bar.style.background = "var(--accent-green)";
+                else if(percentage >= 50) bar.style.background = "#facc15"; 
+                else bar.style.background = "var(--accent-red)";
             }, 100);
         }
     </script>

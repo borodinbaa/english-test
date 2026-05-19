@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connect Four - Cybercrime</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f2041;
+            color: white;
+            user-select: none;
+        }
+        .board-bg {
+            background-color: #1e4072;
+            border-radius: 1rem;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+        .cell {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background-color: #0f2041;
+            box-shadow: inset 0 4px 6px rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #4a6b9c;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .cell:hover {
+            transform: scale(1.05);
+            background-color: #162f5d;
+        }
+        .cell.red {
+            background-color: #ef4444;
+            color: white;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.6), inset 0 -4px 6px rgba(0,0,0,0.3);
+        }
+        .cell.yellow {
+            background-color: #facc15;
+            color: #854d0e;
+            box-shadow: 0 0 15px rgba(250, 204, 21, 0.6), inset 0 -4px 6px rgba(0,0,0,0.3);
+        }
+        .modal-overlay {
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+        }
+        .active-team-indicator {
+            box-shadow: 0 0 20px 5px currentColor;
+            transform: scale(1.1);
+        }
+        .reveal-box {
+            background-color: #e5e7eb;
+            color: transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            display: inline-block;
+            user-select: none;
+        }
+        .reveal-box.revealed {
+            background-color: #dbeafe;
+            color: #1e3a8a;
+            font-weight: 600;
+        }
+        .blank-word {
+            display: inline-block;
+            min-width: 120px;
+            border-bottom: 2px dashed #3b82f6;
+            color: transparent;
+            cursor: pointer;
+            text-align: center;
+            padding: 0 5px;
+            transition: all 0.3s;
+        }
+        .blank-word.filled {
+            color: #15803d;
+            font-weight: bold;
+            border-bottom: 2px solid #15803d;
+        }
+        .tf-statement {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tf-statement.correct {
+            background-color: #dcfce7;
+            border-color: #22c55e;
+            color: #166534;
+        }
+        .tf-statement.incorrect {
+            background-color: #fee2e2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+        .shake-animation {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="max-w-7xl w-full px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mx-auto">
+        
+        <div class="flex flex-col items-center lg:items-start space-y-8">
+            <div>
+                <h1 class="text-7xl font-black tracking-tighter text-gray-200 leading-none">CONNECT<br>FOUR</h1>
+                <p class="text-lg tracking-widest text-gray-400 mt-2 uppercase">Combating Cybercrime</p>
+            </div>
+
+            <div class="flex space-x-16 items-center mt-8">
+                <div class="flex flex-col items-center space-y-3">
+                    <span class="text-lg font-bold text-gray-400">TEAM 1</span>
+                    <div id="team-red" class="w-20 h-20 rounded-full bg-red-500 text-red-500 transition-all duration-300"></div>
+                </div>
+                <div class="flex flex-col items-center space-y-3">
+                    <span class="text-lg font-bold text-gray-400">TEAM 2</span>
+                    <div id="team-yellow" class="w-20 h-20 rounded-full bg-yellow-400 text-yellow-400 transition-all duration-300"></div>
+                </div>
+            </div>
+
+            <button onclick="resetGame()" class="mt-8 px-8 py-4 bg-teal-600 hover:bg-teal-500 text-white text-xl font-bold rounded-full shadow-lg transition-colors">
+                START OVER?
+            </button>
+        </div>
+
+        <div class="flex justify-center">
+            <div class="board-bg p-6 grid grid-cols-5 gap-4" id="board">
+            </div>
+        </div>
+    </div>
+
+    <div id="modal" class="fixed inset-0 modal-overlay hidden flex items-center justify-center z-50 p-6">
+        <div id="modal-window" class="bg-white text-gray-800 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] flex flex-col transition-transform">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center bg-gray-50 rounded-t-2xl">
+                <h2 id="modal-title" class="text-3xl font-bold text-blue-900">Task</h2>
+                <button id="modal-close-btn" onclick="closeModal()" class="text-gray-400 hover:text-red-500 text-4xl font-bold leading-none">&times;</button>
+            </div>
+            
+            <div id="modal-content" class="p-8 text-xl space-y-6 overflow-y-auto flex-grow">
+            </div>
+
+            <div id="modal-actions" class="p-6 border-t border-gray-200 bg-gray-50 rounded-b-2xl flex justify-between items-center">
+                <button onclick="closeModal()" class="px-6 py-3 text-gray-500 hover:text-gray-700 text-lg font-semibold">Close</button>
+                <div class="space-x-4">
+                    <button onclick="handleAnswer(false)" class="px-8 py-3 bg-red-100 text-red-700 hover:bg-red-200 text-lg font-bold rounded-xl transition-colors">Incorrect / Skip</button>
+                    <button onclick="handleAnswer(true)" class="px-8 py-3 bg-green-500 text-white hover:bg-green-600 text-lg font-bold rounded-xl shadow transition-colors">Correct (Take Cell)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function reveal(el) { el.classList.add('revealed'); }
+        function fillBlank(el, word) { el.innerText = word; el.classList.add('filled'); }
+        function checkTF(el, isCorrect) { 
+            el.classList.remove('bg-gray-100');
+            if(isCorrect) el.classList.add('correct'); 
+            else el.classList.add('incorrect'); 
+        }
+        
+        function speakAndHighlight(el, text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-GB';
+                
+                const voices = window.speechSynthesis.getVoices();
+                const gbVoice = voices.find(voice => voice.lang === 'en-GB' || voice.lang === 'en_GB');
+                if (gbVoice) utterance.voice = gbVoice;
+
+                window.speechSynthesis.speak(utterance);
+            }
+            el.classList.add('bg-green-200');
+        }
+
+        const tasks = {
+            1: {
+                title: "Match cybercrimes and their definitions",
+                content: `
+                    <p class="text-gray-500 text-base mb-4">Tap the hidden blocks to reveal the definitions.</p>
+                    <div class="space-y-4">
+                        <div class="flex flex-col border-b pb-2">
+                            <span class="font-bold text-blue-800">Spoofing</span>
+                            <div class="reveal-box mt-1" onclick="reveal(this)">is the creation and use of fake messages, emails, sites, etc.</div>
+                        </div>
+                        <div class="flex flex-col border-b pb-2">
+                            <span class="font-bold text-blue-800">A denial-of-service attack</span>
+                            <div class="reveal-box mt-1" onclick="reveal(this)">is a cyber attack carried out with one Internet-connected device and aimed to disrupt legitimate users’ access to a target network or web resource</div>
+                        </div>
+                        <div class="flex flex-col border-b pb-2">
+                            <span class="font-bold text-blue-800">A malware attack</span>
+                            <div class="reveal-box mt-1" onclick="reveal(this)">is a cyber-attack where malicious software, commonly known as malware, is used to gain unauthorized access to a computer system or network</div>
+                        </div>
+                        <div class="flex flex-col border-b pb-2">
+                            <span class="font-bold text-blue-800">Identity fraud</span>
+                            <div class="reveal-box mt-1" onclick="reveal(this)">is the use of stolen personal details (login credentials, bank account numbers, etc.) to commit fraud</div>
+                        </div>
+                        <div class="flex flex-col border-b pb-2">
+                            <span class="font-bold text-blue-800">A social engineering attack</span>
+                            <div class="reveal-box mt-1" onclick="reveal(this)">is a type of cyber attack that uses psychological manipulation and lies to trick people into giving up sensitive information or doing things that could compromise security</div>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-bold text-blue-800">Identity theft</span>
+                            <div class="reveal-box mt-1" onclick="reveal(this)">is stealing somebody’s personal details (login credentials, bank account numbers, etc.)</div>
+                        </div>
+                    </div>
+                `
+            },
+            2: {
+                title: "Choose the correct / incorrect statement",
+                content: `
+                    <p class="text-gray-500 text-base mb-4">Tap a statement to check if it's correct (Green) or incorrect (Red).</p>
+                    <div class="space-y-4">
+                        <div class="tf-statement p-4 bg-gray-100 border-2 border-transparent rounded-xl" onclick="checkTF(this, true)">
+                            The big reliance on modern technologies has resulted in the rise in the number of cybercrimes
+                        </div>
+                        <div class="tf-statement p-4 bg-gray-100 border-2 border-transparent rounded-xl" onclick="checkTF(this, false)">
+                            Vishing is a term used to describe the action of making hoax phone calls to report serious crimes to police or emergency services
+                        </div>
+                        <div class="tf-statement p-4 bg-gray-100 border-2 border-transparent rounded-xl" onclick="checkTF(this, false)">
+                            Most cybercrimes are committed for political reasons
+                        </div>
+                    </div>
+                `
+            },
+            3: { type: "lucky" },
+            4: {
+                title: "Identify the word from the picture",
+                content: `
+                    <div class="grid grid-cols-2 gap-6">
+                        <div class="flex flex-col items-center space-y-2">
+                            <img src="_bank.png" class="rounded-lg shadow-md w-full object-cover h-48">
+                            <div class="reveal-box w-full text-center" onclick="reveal(this)">A bank account</div>
+                        </div>
+                        <div class="flex flex-col items-center space-y-2">
+                            <img src="_link.png" class="rounded-lg shadow-md w-full object-cover h-48">
+                            <div class="reveal-box w-full text-center" onclick="reveal(this)">A link</div>
+                        </div>
+                        <div class="flex flex-col items-center space-y-2">
+                            <img src="_virus.png" class="rounded-lg shadow-md w-full object-cover h-48">
+                            <div class="reveal-box w-full text-center" onclick="reveal(this)">A virus</div>
+                        </div>
+                        <div class="flex flex-col items-center space-y-2">
+                            <img src="_update.png" class="rounded-lg shadow-md w-full object-cover h-48">
+                            <div class="reveal-box w-full text-center" onclick="reveal(this)">To update</div>
+                        </div>
+                        <div class="flex flex-col items-center space-y-2 col-span-2 w-1/2 mx-auto">
+                            <img src="_ai.png" class="rounded-lg shadow-md w-full object-cover h-48">
+                            <div class="reveal-box w-full text-center" onclick="reveal(this)">AI</div>
+                        </div>
+                    </div>
+                `
+            },
+            5: {
+                title: "Find the English equivalents",
+                content: `
+                    <p class="text-gray-500 text-base mb-4">Tap the hidden blocks to reveal the English translation.</p>
+                    <ul class="space-y-4">
+                        <li class="flex justify-between items-center border-b pb-2">
+                            <span>Повреждать компьютеры</span>
+                            <div class="reveal-box" onclick="reveal(this)">To damage computers</div>
+                        </li>
+                        <li class="flex justify-between items-center border-b pb-2">
+                            <span>Получать несанкционированный доступ</span>
+                            <div class="reveal-box" onclick="reveal(this)">To gain unauthorized access</div>
+                        </li>
+                        <li class="flex justify-between items-center border-b pb-2">
+                            <span>Причинять финансовый и репутационный ущерб</span>
+                            <div class="reveal-box" onclick="reveal(this)">To cause financial or reputational harm</div>
+                        </li>
+                        <li class="flex justify-between items-center border-b pb-2">
+                            <span>Заражение компьютера вредоносным ПО</span>
+                            <div class="reveal-box" onclick="reveal(this)">Infecting computers with malware</div>
+                        </li>
+                        <li class="flex justify-between items-center">
+                            <span>Фальшивые сообщения и ссылки</span>
+                            <div class="reveal-box" onclick="reveal(this)">Fake messages and links</div>
+                        </li>
+                    </ul>
+                `
+            },
+            6: {
+                title: "Give synonyms",
+                content: `
+                    <p class="text-gray-500 text-base mb-4">Tap the hidden blocks to reveal the synonyms.</p>
+                    <ul class="space-y-6 text-2xl">
+                        <li class="flex items-center space-x-4"><span>1. A criminal —</span> <div class="reveal-box" onclick="reveal(this)">an offender</div></li>
+                        <li class="flex items-center space-x-4"><span>2. Illegal —</span> <div class="reveal-box" onclick="reveal(this)">unlawful</div></li>
+                        <li class="flex items-center space-x-4"><span>3. Damage —</span> <div class="reveal-box" onclick="reveal(this)">harm</div></li>
+                        <li class="flex items-center space-x-4"><span>4. Personal —</span> <div class="reveal-box" onclick="reveal(this)">private</div></li>
+                    </ul>
+                `
+            },
+            7: {
+                title: "Pronounce the words correctly",
+                content: `
+                    <p class="text-center text-gray-500 text-base mb-4">Tap a word to hear its pronunciation (British accent).</p>
+                    <div class="flex flex-wrap gap-6 text-3xl font-bold justify-center mt-4">
+                        <span class="p-6 bg-blue-50 text-blue-900 rounded-xl shadow cursor-pointer hover:bg-blue-100 transition" onclick="speakAndHighlight(this, 'Credentials')">Credentials</span>
+                        <span class="p-6 bg-blue-50 text-blue-900 rounded-xl shadow cursor-pointer hover:bg-blue-100 transition" onclick="speakAndHighlight(this, 'Malicious')">Malicious</span>
+                        <span class="p-6 bg-blue-50 text-blue-900 rounded-xl shadow cursor-pointer hover:bg-blue-100 transition" onclick="speakAndHighlight(this, 'Denial')">Denial</span>
+                        <span class="p-6 bg-blue-50 text-blue-900 rounded-xl shadow cursor-pointer hover:bg-blue-100 transition" onclick="speakAndHighlight(this, 'Emergency')">Emergency</span>
+                        <span class="p-6 bg-blue-50 text-blue-900 rounded-xl shadow cursor-pointer hover:bg-blue-100 transition" onclick="speakAndHighlight(this, 'Cyber')">Cyber</span>
+                    </div>
+                `
+            },
+            8: {
+                title: "Solve the riddle",
+                content: `
+                    <div class="text-center italic text-2xl space-y-3 bg-gray-50 p-8 rounded-2xl border border-gray-200">
+                        <p>No hacking code, no broken gate,</p>
+                        <p>I use your trust to seal your fate.</p>
+                        <p>I lie, I trick, I play my part,</p>
+                        <p>To steal your secrets from the start.</p>
+                        <p>A friendly message, fake but neat,</p>
+                        <p>And suddenly I taste defeat.</p>
+                        <p class="font-bold mt-6 text-blue-900">What am I?</p>
+                    </div>
+                    <div class="text-center mt-8">
+                        <div class="reveal-box text-2xl" onclick="reveal(this)">A social engineering attack</div>
+                    </div>
+                `
+            },
+            9: {
+                title: "Answer the question",
+                content: `
+                    <div class="flex items-center justify-center h-64">
+                        <h3 class="text-4xl font-bold text-center text-blue-900">What categories can cybercrimes be divided into?</h3>
+                    </div>
+                `
+            },
+            10: {
+                title: "Match cybercrimes and their definitions",
+                content: `
+                    <p class="text-gray-500 text-base mb-4">Tap the hidden blocks to reveal the definitions.</p>
+                    <div class="space-y-4">
+                        <div class="flex flex-col border-b pb-2">
+                            <span class="font-bold text-blue-800">Swatting</span>
+                            <div class="reveal-box mt-1" onclick="reveal(this)">is the action of making hoax phone calls to report serious crimes to police or emergency services</div>
+                        </div>
+                        <div class="flex flex-col border-b pb-2">
+                            <span class="font-bold text-blue-800">Cyber extortion</span>
+                            <div class="reveal-box mt-1" onclick="reveal(this)">is the demand for money by cybercriminals to give back some important data they have stolen or stop doing malicious activities</div>
+                        </div>
+                        <div class="flex flex-col border-b pb-2">
+                            <span class="font-bold text-blue-800">Phishing</span>
+                            <div class="reveal-box mt-1" onclick="reveal(this)">is a type of social engineering attack and a scam that targets users by sending fake messages, emails, and links</div>
+                        </div>
+                        <div class="flex flex-col border-b pb-2">
+                            <span class="font-bold text-blue-800">A distributed denial-of-service attack</span>
+                            <div class="reveal-box mt-1" onclick="reveal(this)">is a cyber attack carried out with networks of Internet-connected machines and aimed to disrupt legitimate users’ access</div>
+                        </div>
+                        <div class="flex flex-col border-b pb-2">
+                            <span class="font-bold text-blue-800">Vishing</span>
+                            <div class="reveal-box mt-1" onclick="reveal(this)">is the use of fraudulent phone calls to trick victims into providing personal information</div>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="font-bold text-blue-800">Cryptojacking</span>
+                            <div class="reveal-box mt-1" onclick="reveal(this)">is the act of exploiting a computer to mine cryptocurrencies against the user’s will</div>
+                        </div>
+                    </div>
+                `
+            },
+            11: {
+                title: "Solve the riddle",
+                content: `
+                    <div class="text-center italic text-2xl space-y-3 bg-gray-50 p-8 rounded-2xl border border-gray-200">
+                        <p>I slip inside your system quiet,</p>
+                        <p>I don’t ask — I start a riot.</p>
+                        <p>Files get broken, speed gets slow,</p>
+                        <p>You don’t even see me go.</p>
+                        <p>I often hide in a file or link,</p>
+                        <p>Before you have time to think.</p>
+                        <p class="font-bold mt-6 text-blue-900">What am I?</p>
+                    </div>
+                    <div class="text-center mt-8">
+                        <div class="reveal-box text-2xl" onclick="reveal(this)">A malware attack</div>
+                    </div>
+                `
+            },
+            12: { type: "lucky" },
+            13: {
+                title: "Answer the question",
+                content: `
+                    <div class="flex items-center justify-center h-64">
+                        <h3 class="text-4xl font-bold text-center text-blue-900">Why do cybercriminals commit cybercrimes?</h3>
+                    </div>
+                `
+            },
+            14: {
+                title: "Insert the missing word",
+                content: `
+                    <p class="text-gray-500 text-base mb-6">Tap the dashed lines to reveal the correct word.</p>
+                    <div class="space-y-6 text-2xl leading-relaxed">
+                        <p>1. Cybercrime is any criminal activity that involves a computer, a network or a networked <span class="blank-word" onclick="fillBlank(this, 'device')">__________</span>.</p>
+                        <p>2. Cybercriminals often commit crimes for <span class="blank-word" onclick="fillBlank(this, 'profit')">__________</span>.</p>
+                        <p>3. Many cybercriminals provide illegal services on the dark <span class="blank-word" onclick="fillBlank(this, 'web')">__________</span>.</p>
+                        <p>4. Cyber security requires international <span class="blank-word" onclick="fillBlank(this, 'cooperation')">__________</span> between states and organizations.</p>
+                        <p>5. Anti-virus software should be regularly <span class="blank-word" onclick="fillBlank(this, 'updated')">__________</span>.</p>
+                    </div>
+                `
+            },
+            15: {
+                title: "Give synonyms",
+                content: `
+                    <p class="text-gray-500 text-base mb-4">Tap the hidden blocks to reveal the synonyms.</p>
+                    <ul class="space-y-6 text-2xl">
+                        <li class="flex items-center space-x-4"><span>1. False —</span> <div class="reveal-box" onclick="reveal(this)">fake</div></li>
+                        <li class="flex items-center space-x-4"><span>2. To combat —</span> <div class="reveal-box" onclick="reveal(this)">to counter</div></li>
+                        <li class="flex items-center space-x-4"><span>3. To use —</span> <div class="reveal-box" onclick="reveal(this)">to exploit</div></li>
+                    </ul>
+                `
+            },
+            16: {
+                title: "Solve the riddle",
+                content: `
+                    <div class="text-center italic text-2xl space-y-3 bg-gray-50 p-8 rounded-2xl border border-gray-200">
+                        <p>I think, I learn, I analyze,</p>
+                        <p>No human brain behind my eyes.</p>
+                        <p>I help machines become more wise,</p>
+                        <p>From data patterns I devise.</p>
+                        <p>I’m not alive, but still I grow,</p>
+                        <p>Through algorithms I can know.</p>
+                        <p class="font-bold mt-6 text-blue-900">What am I?</p>
+                    </div>
+                    <div class="text-center mt-8">
+                        <div class="reveal-box text-2xl" onclick="reveal(this)">Artificial intelligence (AI)</div>
+                    </div>
+                `
+            },
+            17: {
+                title: "Fill in the blanks",
+                content: `
+                    <div class="mb-6 p-4 bg-gray-100 rounded-lg text-center font-bold text-blue-900 tracking-wide">
+                        WORDS: apprehend • credentials • countered • vulnerabilities • infringement
+                    </div>
+                    <div class="bg-blue-50 p-8 rounded-2xl text-gray-800 leading-loose text-xl border border-blue-100">
+                        <h4 class="font-bold text-red-600 mb-6 text-2xl">🚨 BREAKING NEWS: Global Rise in Cybercrime Alarms Authorities</h4>
+                        <p class="mb-4">International law enforcement agencies are warning about a sharp increase in cybercrime around the world. Experts report that cybercriminals are exploiting (1) <span class="blank-word" onclick="fillBlank(this, 'vulnerabilities')">__________</span> in computer systems to gain illegal access to sensitive information.</p>
+                        
+                        <p class="mb-4">Many recent phishing attacks have targeted users’ login (2) <span class="blank-word" onclick="fillBlank(this, 'credentials')">__________</span>, including usernames and passwords. Authorities also note a rise in copyright (3) <span class="blank-word" onclick="fillBlank(this, 'infringement')">__________</span> cases involving the illegal sharing of digital content.</p>
+                        
+                        <p>Because many cybercrimes are committed across borders, police often struggle to detect and (4) <span class="blank-word" onclick="fillBlank(this, 'apprehend')">__________</span> offenders before they disappear online. Security specialists say that cyber threats can only be effectively (5) <span class="blank-word" onclick="fillBlank(this, 'countered')">__________</span> through international cooperation, advanced technology, and stronger online protection measures.</p>
+                    </div>
+                `
+            },
+            18: {
+                title: "Fill in the blanks",
+                content: `
+                    <div class="mb-6 p-4 bg-gray-100 rounded-lg text-center font-bold text-blue-900 tracking-wide">
+                        WORDS: fraud • malware • cooperation • access • web
+                    </div>
+                    <div class="bg-yellow-50 p-8 rounded-2xl text-gray-800 leading-loose text-xl border border-yellow-100">
+                        <h4 class="font-bold text-yellow-700 mb-6 text-2xl">⚠️ BREAKING NEWS: Massive Cyber Attack Hits International Companies</h4>
+                        <p class="mb-4">Cyber security experts are investigating a large-scale cyber attack that affected several international companies earlier this week. According to investigators, hackers used advanced types of (1) <span class="blank-word" onclick="fillBlank(this, 'malware')">__________</span> to infect corporate systems and disrupt online services.</p>
+                        
+                        <p class="mb-4">The attackers reportedly gained unauthorized (2) <span class="blank-word" onclick="fillBlank(this, 'access')">__________</span> to confidential company data before demanding money from victims. Officials believe the criminals operated through the dark (3) <span class="blank-word" onclick="fillBlank(this, 'web')">__________</span>, where illegal cyber services are often sold.</p>
+                        
+                        <p>Security analysts also warn that fake emails and suspicious links remain one of the most common methods of online (4) <span class="blank-word" onclick="fillBlank(this, 'fraud')">__________</span> targeting ordinary users. Law enforcement agencies stress that stronger cyber security and international (5) <span class="blank-word" onclick="fillBlank(this, 'cooperation')">__________</span> are necessary to fight global cybercrime effectively.</p>
+                    </div>
+                `
+            },
+            19: { type: "oops" },
+            20: {
+                title: "Identify the word from the picture",
+                content: `
+                    <div class="grid grid-cols-3 gap-6">
+                        <div class="flex flex-col items-center space-y-4">
+                            <img src="_ddos.png" class="rounded-lg shadow-md w-full object-cover h-48">
+                            <div class="reveal-box w-full text-center" onclick="reveal(this)">A DDoS attack</div>
+                        </div>
+                        <div class="flex flex-col items-center space-y-4">
+                            <img src="_un_access.png" class="rounded-lg shadow-md w-full object-cover h-48">
+                            <div class="reveal-box w-full text-center" onclick="reveal(this)">An unauthorized access</div>
+                        </div>
+                        <div class="flex flex-col items-center space-y-4">
+                            <img src="_cryptojacking.png" class="rounded-lg shadow-md w-full object-cover h-48">
+                            <div class="reveal-box w-full text-center" onclick="reveal(this)">Cryptojacking</div>
+                        </div>
+                    </div>
+                `
+            },
+            21: {
+                title: "Answer the question",
+                content: `
+                    <div class="flex items-center justify-center h-64">
+                        <h3 class="text-4xl font-bold text-center text-blue-900">What differs phishing from spoofing and vishing?</h3>
+                    </div>
+                `
+            },
+            22: { type: "oops" },
+            23: {
+                title: "Find the English equivalents",
+                content: `
+                    <p class="text-gray-500 text-base mb-4">Tap the hidden blocks to reveal the English translation.</p>
+                    <ul class="space-y-4 text-xl">
+                        <li class="flex justify-between items-center border-b pb-3">
+                            <span>Конфиденциальная (частная) информация</span>
+                            <div class="reveal-box" onclick="reveal(this)">Sensitive / personal information</div>
+                        </li>
+                        <li class="flex justify-between items-center border-b pb-3">
+                            <span>Вводить реквизиты доступа</span>
+                            <div class="reveal-box" onclick="reveal(this)">To enter login credentials</div>
+                        </li>
+                        <li class="flex justify-between items-center border-b pb-3">
+                            <span>Меры личной безопасности</span>
+                            <div class="reveal-box" onclick="reveal(this)">Individual security measures</div>
+                        </li>
+                        <li class="flex justify-between items-center border-b pb-3">
+                            <span>Антивирусное программное обеспечение</span>
+                            <div class="reveal-box" onclick="reveal(this)">Anti-virus software</div>
+                        </li>
+                        <li class="flex justify-between items-center">
+                            <span>Противодействовать киберугрозам</span>
+                            <div class="reveal-box" onclick="reveal(this)">To counter cyber threats</div>
+                        </li>
+                    </ul>
+                `
+            },
+            24: {
+                title: "Pronounce the words correctly",
+                content: `
+                    <p class="text-center text-gray-500 text-base mb-4">Tap a word to hear its pronunciation (British accent).</p>
+                    <div class="flex flex-wrap gap-6 text-3xl font-bold justify-center mt-4">
+                        <span class="p-6 bg-blue-50 text-blue-900 rounded-xl shadow cursor-pointer hover:bg-blue-100 transition" onclick="speakAndHighlight(this, 'A novice')">A novice</span>
+                        <span class="p-6 bg-blue-50 text-blue-900 rounded-xl shadow cursor-pointer hover:bg-blue-100 transition" onclick="speakAndHighlight(this, 'A technique')">A technique</span>
+                        <span class="p-6 bg-blue-50 text-blue-900 rounded-xl shadow cursor-pointer hover:bg-blue-100 transition" onclick="speakAndHighlight(this, 'Copyright infringement')">Copyright infringement</span>
+                        <span class="p-6 bg-blue-50 text-blue-900 rounded-xl shadow cursor-pointer hover:bg-blue-100 transition" onclick="speakAndHighlight(this, 'Unauthorized')">Unauthorized</span>
+                        <span class="p-6 bg-blue-50 text-blue-900 rounded-xl shadow cursor-pointer hover:bg-blue-100 transition" onclick="speakAndHighlight(this, 'Reliance')">Reliance</span>
+                    </div>
+                `
+            },
+            25: {
+                title: "Choose the incorrect statement",
+                content: `
+                    <p class="text-gray-500 text-base mb-4">Tap a statement to check if it's correct (Green) or incorrect (Red).</p>
+                    <div class="space-y-4 text-xl">
+                        <div class="tf-statement p-5 bg-gray-100 border-2 border-transparent rounded-xl" onclick="checkTF(this, false)">
+                            Cybercrimes are mostly committed by organized criminals
+                        </div>
+                        <div class="tf-statement p-5 bg-gray-100 border-2 border-transparent rounded-xl" onclick="checkTF(this, true)">
+                            Modern advanced techniques such as AI-driven forensic software can help law-enforcement agencies to solve cybercrimes
+                        </div>
+                        <div class="tf-statement p-5 bg-gray-100 border-2 border-transparent rounded-xl" onclick="checkTF(this, true)">
+                            Individual security measures are vital for cybercrime prevention
+                        </div>
+                    </div>
+                `
+            }
+        };
+
+        let currentPlayer = 'red';
+        let boardState = Array(25).fill(null);
+        let currentActiveCell = null;
+        let gameActive = true;
+        let cellToTaskMap = {};
+
+        const gridLayout = [
+            25, 24, 23, 22, 21,
+            16, 17, 18, 19, 20,
+            15, 14, 13, 12, 11,
+            6,  7,  8,  9,  10,
+            1,  2,  3,  4,  5
+        ];
+
+        function initBoard() {
+            let taskIds = Object.keys(tasks);
+            taskIds.sort(() => Math.random() - 0.5);
+            
+            gridLayout.forEach((cellNum, index) => {
+                cellToTaskMap[cellNum] = taskIds[index];
+            });
+
+            const boardEl = document.getElementById('board');
+            boardEl.innerHTML = '';
+            gridLayout.forEach((num, index) => {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.innerText = num;
+                cell.onclick = () => cellClicked(num, index);
+                cell.id = `cell-${index}`;
+                boardEl.appendChild(cell);
+            });
+            updateTurnIndicator();
+        }
+
+        function cellClicked(num, index) {
+            if (!gameActive || boardState[index] !== null) return;
+
+            currentActiveCell = index;
+            const taskId = cellToTaskMap[num];
+            const task = tasks[taskId];
+
+            if (task.type === 'lucky') {
+                showSpecialModal("🍀 Lucky Moment!", "Time to relax and score a point. Your team gets this cell for free!", "bg-green-500", () => {
+                    boardState[index] = currentPlayer;
+                    updateBoardUI();
+                    if(!checkWin()) switchTurn();
+                });
+            } else if (task.type === 'oops') {
+                showSpecialModal("⚠️ Oops!", "The turn goes to the opponent; you don’t get anything.", "bg-red-500", () => {
+                    boardState[index] = 'disabled';
+                    updateBoardUI();
+                    switchTurn();
+                });
+            } else {
+                openModal(task);
+            }
+        }
+
+        function openModal(task) {
+            document.getElementById('modal-title').innerText = task.title;
+            document.getElementById('modal-content').innerHTML = task.content;
+            document.getElementById('modal-actions').classList.remove('hidden');
+            document.getElementById('modal-close-btn').classList.remove('hidden');
+            document.getElementById('modal').classList.remove('hidden');
+        }
+
+        function showSpecialModal(title, text, colorClass, callback) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-content').innerHTML = `<div class="text-center text-4xl font-bold p-12 ${colorClass} text-white rounded-2xl shadow-inner">${text}</div>`;
+            document.getElementById('modal-actions').classList.add('hidden');
+            document.getElementById('modal-close-btn').classList.add('hidden');
+            document.getElementById('modal').classList.remove('hidden');
+            
+            setTimeout(() => {
+                closeModal();
+                callback();
+            }, 3000);
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+            currentActiveCell = null;
+        }
+
+        function handleAnswer(isCorrect) {
+            if (isCorrect && currentActiveCell !== null) {
+                boardState[currentActiveCell] = currentPlayer;
+                updateBoardUI();
+                if(checkWin()) {
+                    closeModal();
+                    return;
+                }
+                switchTurn();
+                closeModal();
+            } else {
+                const modalWindow = document.getElementById('modal-window');
+                modalWindow.classList.add('shake-animation');
+                
+                setTimeout(() => {
+                    modalWindow.classList.remove('shake-animation');
+                    switchTurn();
+                    closeModal();
+                }, 600);
+            }
+        }
+
+        function switchTurn() {
+            currentPlayer = currentPlayer === 'red' ? 'yellow' : 'red';
+            updateTurnIndicator();
+        }
+
+        function updateTurnIndicator() {
+            document.getElementById('team-red').classList.remove('active-team-indicator');
+            document.getElementById('team-yellow').classList.remove('active-team-indicator');
+            document.getElementById(`team-${currentPlayer}`).classList.add('active-team-indicator');
+        }
+
+        function updateBoardUI() {
+            boardState.forEach((state, index) => {
+                const cell = document.getElementById(`cell-${index}`);
+                cell.className = 'cell';
+                if (state === 'red') cell.classList.add('red');
+                if (state === 'yellow') cell.classList.add('yellow');
+                if (state === 'disabled') {
+                    cell.classList.add('bg-gray-700', 'text-gray-500', 'cursor-not-allowed', 'opacity-50');
+                }
+            });
+        }
+
+        function checkWin() {
+            const size = 5;
+            const winLength = 4;
+
+            const getColor = (x, y) => {
+                if (x < 0 || x >= size || y < 0 || y >= size) return null;
+                return boardState[y * size + x];
+            };
+
+            for (let y = 0; y < size; y++) {
+                for (let x = 0; x < size; x++) {
+                    const color = getColor(x, y);
+                    if (!color || color === 'disabled') continue;
+
+                    if (x <= size - winLength && color === getColor(x+1, y) && color === getColor(x+2, y) && color === getColor(x+3, y)) return declareWinner(color);
+                    if (y <= size - winLength && color === getColor(x, y+1) && color === getColor(x, y+2) && color === getColor(x, y+3)) return declareWinner(color);
+                    if (x <= size - winLength && y <= size - winLength && color === getColor(x+1, y+1) && color === getColor(x+2, y+2) && color === getColor(x+3, y+3)) return declareWinner(color);
+                    if (x >= winLength - 1 && y <= size - winLength && color === getColor(x-1, y+1) && color === getColor(x-2, y+2) && color === getColor(x-3, y+3)) return declareWinner(color);
+                }
+            }
+            return false;
+        }
+
+        function declareWinner(color) {
+            gameActive = false;
+            const teamName = color === 'red' ? 'TEAM 1 (RED)' : 'TEAM 2 (YELLOW)';
+            setTimeout(() => {
+                showSpecialModal("🎉 WE HAVE A WINNER!", `${teamName} WINS THE GAME!`, color === 'red' ? 'bg-red-500' : 'bg-yellow-500', () => {});
+            }, 500);
+            return true;
+        }
+
+        function resetGame() {
+            boardState = Array(25).fill(null);
+            currentPlayer = Math.random() < 0.5 ? 'red' : 'yellow';
+            gameActive = true;
+            initBoard();
+            updateBoardUI();
+        }
+
+        currentPlayer = Math.random() < 0.5 ? 'red' : 'yellow';
+        initBoard();
+    </script>
+</body>
+</html>
